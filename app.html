@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>AutoParts Pro</title>
+    
+    <!-- Preload critical assets -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <style>
+        /* CSS Variables для темизации Telegram */
+        :root {
+            --tg-theme-bg-color: #0f0f0f;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-hint-color: #8e8e93;
+            --tg-theme-link-color: #ff4d00;
+            --tg-theme-button-color: #ff4d00;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #1c1c1e;
+            
+            /* Design System */
+            --color-primary: #ff4d00;
+            --color-primary-glow: rgba(255, 77, 0, 0.3);
+            --color-surface: rgba(255, 255, 255, 0.05);
+            --color-surface-elevated: rgba(255, 255, 255, 0.08);
+            --color-border: rgba(255, 255, 255, 0.1);
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #8e8e93;
+            --color-success: #34c759;
+            --color-warning: #ff9500;
+            
+            /* Spacing System (4px base) */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            
+            /* Typography */
+            --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'SF Mono', Monaco, monospace;
+            
+            /* Effects */
+            --blur-amount: 20px;
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Safe Areas */
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+        }
+
+        /* Reset & Base */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+            background: var(--tg-theme-bg-color);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            overscroll-behavior: none;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Utilities */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-sm { gap: var(--space-sm); }
+        .gap-md { gap: var(--space-md); }
+        .w-full { width: 100%; }
+        .h-full { height: 100%; }
+        .relative { position: relative; }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+        /* Layout */
+        #app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--sat);
+            padding-bottom: calc(var(--sab) + 80px);
+        }
+
+        .page {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: var(--space-md);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--transition-base), transform var(--transition-base);
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Glass Morphism Component */
+        .glass {
+            background: var(--color-surface);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-lg);
+        }
+
+        .glass-elevated {
+            background: var(--color-surface-elevated);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Typography */
+        .text-xs { font-size: 12px; }
+        .text-sm { font-size: 14px; }
+        .text-base { font-size: 16px; }
+        .text-lg { font-size: 20px; }
+        .text-xl { font-size: 24px; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .text-secondary { color: var(--color-text-secondary); }
+        .text-primary { color: var(--color-primary); }
+        .text-center { text-align: center; }
+        .mono { font-family: var(--font-mono); }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .btn:active { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 20px var(--color-primary-glow);
+        }
+
+        .btn-primary:active { box-shadow: 0 2px 10px var(--color-primary-glow); }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px dashed var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        /* Form Elements */
+        .input-group { margin-bottom: var(--space-md); }
+
+        .input {
+            width: 100%;
+            height: 56px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-md);
+            padding: 0 var(--space-md);
+            color: var(--color-text-primary);
+            font-size: 16px;
+            transition: all var(--transition-fast);
+            -webkit-appearance: none;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-glow);
+        }
+
+        .input::placeholder { color: var(--color-text-secondary); }
+
+        textarea.input {
+            height: auto;
+            min-height: 120px;
+            padding: var(--space-md);
+            resize: none;
+            font-family: inherit;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            position: relative;
+            width: 52px;
+            height: 32px;
+            background: var(--color-surface);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            border: 1px solid var(--color-border);
+        }
+
+        .toggle.active { background: var(--color-primary); }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform var(--transition-fast);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle.active::after { transform: translateX(20px); }
+
+        /* Avatar */
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-surface-elevated), var(--color-surface));
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 0 20px var(--color-primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(255,77,0,0.1));
+        }
+
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--color-border);
+            padding: var(--space-sm) 0 calc(var(--space-md) + var(--sab));
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: var(--space-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--color-text-secondary);
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active .nav-icon {
+            filter: drop-shadow(0 0 8px var(--color-primary-glow));
+            transform: scale(1.1);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            transition: all var(--transition-fast);
+            will-change: transform;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Order Card */
+        .order-card {
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            transition: transform var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .order-card:active { transform: scale(0.98); }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background: rgba(255, 149, 0, 0.2); color: var(--color-warning); }
+        .status-active { background: rgba(255, 77, 0, 0.2); color: var(--color-primary); }
+        .status-delivered { background: rgba(52, 199, 89, 0.2); color: var(--color-success); }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* Progress Line */
+        .progress-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: var(--space-md) 0;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-surface-elevated);
+            transition: all var(--transition-base);
+            position: relative;
+        }
+
+        .progress-dot.active {
+            background: var(--color-primary);
+            box-shadow: 0 0 8px var(--color-primary);
+        }
+
+        .progress-line-bar {
+            flex: 1;
+            height: 2px;
+            background: var(--color-surface-elevated);
+            border-radius: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-line-bar.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: var(--color-primary);
+            animation: progressFill 1s ease-out forwards;
+        }
+
+        @keyframes progressFill {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        /* Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            padding: var(--space-md) 0;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: var(--space-md);
+            border-radius: var(--border-radius-lg);
+            font-size: 15px;
+            line-height: 1.4;
+            position: relative;
+            animation: messageSlide 0.3s ease-out;
+            word-wrap: break-word;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-bubble.manager {
+            background: var(--color-surface);
+            border-bottom-left-radius: var(--space-sm);
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .message-bubble.user {
+            background: linear-gradient(135deg, var(--color-primary), #ff6b35);
+            color: white;
+            border-bottom-right-radius: var(--space-sm);
+            align-self: flex-end;
+            margin-left: auto;
+            box-shadow: 0 4px 15px var(--color-primary-glow);
+        }
+
+        .message-meta {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .chat-input-container {
+            position: sticky;
+            bottom: 0;
+            background: var(--tg-theme-bg-color);
+            padding: var(--space-md) 0;
+            border-top: 1px solid var(--color-border);
+            margin: 0 calc(-1 * var(--space-md));
+            padding-left: var(--space-md);
+            padding-right: var(--space-md);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: flex-end;
+        }
+
+        /* Photo Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .photo-upload-slot {
+            aspect-ratio: 1;
+            border: 2px dashed var(--color-border);
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-upload-slot:hover, .photo-upload-slot:active {
+            border-color: var(--color-primary);
+            background: var(--color-surface);
+        }
+
+        .photo-upload-slot.has-image {
+            border: none;
+        }
+
+        .photo-upload-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius-md);
+        }
+
+        .photo-upload-slot .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .photo-upload-slot:hover .remove-btn { opacity: 1; }
+
+        /* Car Carousel */
+        .car-carousel {
+            display: flex;
+            gap: var(--space-md);
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            padding: var(--space-md) 0;
+            margin: 0 calc(-1 * var(--space-md));
+            padding-left: var(--space-md);
+            padding-right: var(--space-md);
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .car-carousel::-webkit-scrollbar { display: none; }
+
+        .car-card {
+            min-width: 300px;
+            scroll-snap-align: center;
+            padding: var(--space-xl) var(--space-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+            transition: transform var(--transition-fast);
+        }
+
+        .car-visual {
+            width: 200px;
+            height: 120px;
+            position: relative;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+            transition: transform var(--transition-base);
+        }
+
+        .car-card:active .car-visual { transform: scale(1.05); }
+
+        .license-plate {
+            background: linear-gradient(180deg, #e0e0e0, #b0b0b0);
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.5),
+                inset 0 -1px 0 rgba(0,0,0,0.2),
+                0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: -1px -1px 0 rgba(255,255,255,0.3);
+            position: relative;
+        }
+
+        .license-plate::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-elevated) 50%, var(--color-surface) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--border-radius-md);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--color-surface);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: calc(var(--sat) + var(--space-lg));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--color-surface-elevated);
+            backdrop-filter: blur(20px);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--border-radius-xl);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            margin-bottom: var(--space-sm);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { border-left: 3px solid var(--color-success); }
+        .toast.error { border-left: 3px solid #ff3b30; }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-xl);
+            opacity: 0.6;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-md);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: var(--tg-theme-bg-color);
+            border-radius: var(--border-radius-lg);
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform var(--transition-base);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-body {
+            padding: var(--space-lg);
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .modal-footer {
+            padding: var(--space-md) var(--space-lg);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            #app {
+                max-width: 480px;
+                margin: 0 auto;
+                border-left: 1px solid var(--color-border);
+                border-right: 1px solid var(--color-border);
+            }
+            
+            .bottom-nav {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- Pages will be injected here -->
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay" id="modalOverlay" onclick="App.modal.close()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="text-lg font-semibold" id="modalTitle">Заголовок</h3>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<script>
+/**
+ * Production-Ready Telegram Mini App Architecture
+ * Pattern: Module Revealing Pattern + State Management
+ */
+
+const CONFIG = {
+    API_BASE_URL: 'https://api.autoparts.pro/v1',
+    TELEGRAM_BOT_USERNAME: 'your_bot_username',
+    STORAGE_PREFIX: 'app_',
+    DEBOUNCE_DELAY: 300,
+    THROTTLE_DELAY: 100,
+    MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
+    ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp']
+};
+
+/**
+ * State Management
+ * Immutable state updates with subscribers
+ */
+const Store = (function() {
+    let state = {
+        user: null,
+        cars: [],
+        orders: [],
+        activeRequest: null,
+        currentPage: 'garage',
+        isLoading: false,
+        theme: 'dark',
+        photos: [],
+        messages: []
+    };
+    
+    const subscribers = new Map();
+    
+    function getState() {
+        return Object.freeze({...state});
+    }
+    
+    function setState(newState) {
+        const prevState = {...state};
+        state = {...state, ...newState};
+        notify(prevState, state);
+    }
+    
+    function notify(prevState, newState) {
+        subscribers.forEach((callback, key) => {
+            try {
+                if (hasChanged(prevState[key], newState[key])) {
+                    callback(newState[key], prevState[key]);
+                }
+            } catch(e) {
+                console.error(`Subscriber error for ${key}:`, e);
+            }
+        });
+    }
+    
+    function hasChanged(a, b) {
+        return JSON.stringify(a) !== JSON.stringify(b);
+    }
+    
+    function subscribe(key, callback) {
+        subscribers.set(key, callback);
+        // Immediate call with current value
+        if (state[key] !== undefined) {
+            callback(state[key], null);
+        }
+        return () => subscribers.delete(key);
+    }
+    
+    return {
+        get: getState,
+        set: setState,
+        subscribe
+    };
+})();
+
+/**
+ * Telegram WebApp Integration
+ */
+const TelegramAPI = {
+    init() {
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
+            // Set theme
+            const theme = tg.colorScheme || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            // Apply Telegram theme colors
+            if (tg.themeParams) {
+                const root = document.documentElement;
+                Object.entries(tg.themeParams).forEach(([key, value]) => {
+                    if (value) root.style.setProperty(`--tg-theme-${key.replace(/_/g, '-')}`, value);
+                });
+            }
+            
+            // Handle viewport changes
+            tg.onEvent('viewportChanged', () => {
+                document.body.style.height = `${tg.viewportHeight}px`;
+            });
+            
+            // Enable closing confirmation
+            tg.enableClosingConfirmation();
+            
+            return tg;
+        }
+        return null;
+    },
+    
+    haptic(type) {
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            try {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
+            } catch(e) {}
+        }
+    },
+    
+    showMainButton(text, callback) {
+        if (window.Telegram?.WebApp?.MainButton) {
+            const btn = window.Telegram.WebApp.MainButton;
+            btn.setText(text);
+            btn.onClick(callback);
+            btn.show();
+        }
+    },
+    
+    hideMainButton() {
+        if (window.Telegram?.WebApp?.MainButton) {
+            window.Telegram.WebApp.MainButton.hide();
+        }
+    },
+    
+    sendData(data) {
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.sendData(JSON.stringify(data));
+        }
+    }
+};
+
+/**
+ * API Service with error handling and retries
+ */
+const APIService = {
+    async request(endpoint, options = {}) {
+        const url = `${CONFIG.API_BASE_URL}${endpoint}`;
+        const defaults = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Store.get().user?.token || ''}`
+            }
+        };
+        
+        try {
+            const response = await fetch(url, {...defaults, ...options});
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error(`API Error: ${endpoint}`, error);
+            throw error;
+        }
+    },
+    
+    getUser: () => APIService.request('/user'),
+    getOrders: () => APIService.request('/orders'),
+    getCars: () => APIService.request('/cars'),
+    createRequest: (data) => APIService.request('/requests', {method: 'POST', body: JSON.stringify(data)}),
+    uploadPhoto: (file) => {
+        const formData = new FormData();
+        formData.append('photo', file);
+        return APIService.request('/upload', {method: 'POST', body: formData, headers: {}});
+    }
+};
+
+/**
+ * Utils: Debounce, Throttle, Validation
+ */
+const Utils = {
+    debounce(fn, delay = CONFIG.DEBOUNCE_DELAY) {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn.apply(this, args), delay);
+        };
+    },
+    
+    throttle(fn, limit = CONFIG.THROTTLE_DELAY) {
+        let inThrottle;
+        return (...args) => {
+            if (!inThrottle) {
+                fn.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    },
+    
+    validatePhone(phone) {
+        return /^\+?[1-9]\d{9,14}$/.test(phone.replace(/\s/g, ''));
+    },
+    
+    formatPrice(price) {
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            maximumFractionDigits: 0
+        }).format(price);
+    },
+    
+    formatDate(date) {
+        return new Intl.DateTimeFormat('ru-RU', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(new Date(date));
+    },
+    
+    generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    },
+    
+    compressImage(file, maxWidth = 1200) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const scale = Math.min(1, maxWidth / img.width);
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(resolve, 'image/jpeg', 0.8);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+};
+
+/**
+ * UI Components (Functional approach)
+ */
+const Components = {
+    // Skeleton loader
+    Skeleton(type = 'text') {
+        if (type === 'card') {
+            return `<div class="glass" style="height: 120px; margin-bottom: 16px;">
+                <div class="skeleton" style="height: 100%;"></div>
+            </div>`;
+        }
+        return `<div class="skeleton" style="height: 20px; width: ${Math.random() * 40 + 60}%; margin-bottom: 8px;"></div>`;
+    },
+    
+    // Toast notification
+    Toast(message, type = 'success', duration = 3000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <span>${type === 'success' ? '✓' : '⚠'}</span>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+            TelegramAPI.haptic(type === 'success' ? 'light' : 'heavy');
+        });
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    },
+    
+    // Order card component
+    OrderCard(order) {
+        const statusConfig = {
+            pending: { class: 'status-pending', text: 'Обработка' },
+            active: { class: 'status-active', text: 'В доставке' },
+            delivered: { class: 'status-delivered', text: 'Доставлено' }
+        };
+        
+        const status = statusConfig[order.status] || statusConfig.pending;
+        const progressSteps = order.status === 'delivered' ? 3 : order.status === 'active' ? 2 : 1;
+        
+        return `
+            <div class="glass order-card" onclick="Router.navigate('order-detail', {id: '${order.id}'})">
+                <div class="flex justify-between items-center mb-sm">
+                    <span class="text-xs text-secondary mono">№${order.id.slice(-6).toUpperCase()}</span>
+                    <div class="status-badge ${status.class}">
+                        ${order.status === 'active' ? '<span class="pulse-dot"></span>' : ''}
+                        ${status.text}
+                    </div>
+                </div>
+                <div class="font-semibold text-base mb-xs">${order.partName}</div>
+                <div class="text-sm text-secondary mb-md">${order.carModel}</div>
+                
+                <div class="progress-line">
+                    ${[1,2,3].map(i => `
+                        <div class="progress-dot ${i <= progressSteps ? 'active' : ''}"></div>
+                        ${i < 3 ? `<div class="progress-line-bar ${i < progressSteps ? 'active' : ''}"></div>` : ''}
+                    `).join('')}
+                </div>
+                
+                <div class="flex justify-between items-center mt-md">
+                    <span class="text-xs text-secondary">${order.deliveryDate || 'Уточняется'}</span>
+                    <span class="text-lg font-bold text-primary">${Utils.formatPrice(order.price)}</span>
+                </div>
+            </div>
+        `;
+    },
+    
+    // Car card component
+    CarCard(car) {
+        return `
+            <div class="glass car-card glass-elevated">
+                <div class="car-visual">
+                    ${car.image ? 
+                        `<img src="${car.image}" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,0.3))">` : 
+                        `<div style="font-size:60px;opacity:0.8;">🚗</div>`
+                    }
+                </div>
+                <div class="license-plate">${car.plate}</div>
+                <div class="text-center">
+                    <div class="font-semibold text-lg">${car.model}</div>
+                    <div class="text-sm text-secondary mono mt-xs">${car.year} • ${car.mileage.toLocaleString()} км</div>
+                </div>
+                <button class="btn btn-ghost mt-md" style="width:100%;" onclick="Router.navigate('car-detail', {id: '${car.id}'})">
+                    Детали
+                </button>
+            </div>
+        `;
+    },
+    
+    // Chat message
+    Message(msg) {
+        const isUser = msg.sender === 'user';
+        return `
+            <div class="message-bubble ${isUser ? 'user' : 'manager'}">
+                ${msg.text}
+                <span class="message-meta">${Utils.formatDate(msg.timestamp)}</span>
+            </div>
+        `;
+    }
+};
+
+/**
+ * Router: SPA Navigation without page reload
+ */
+const Router = {
+    routes: {
+        'profile': () => Pages.Profile(),
+        'orders': () => Pages.Orders(),
+        'request': () => Pages.Request(),
+        'garage': () => Pages.Garage()
+    },
+    
+    currentRoute: null,
+    
+    navigate(route, params = {}) {
+        if (this.currentRoute === route) return;
+        
+        // Hide current page
+        document.querySelectorAll('.page').forEach(p => {
+            p.classList.remove('active');
+            setTimeout(() => p.style.display = 'none', 300);
+        });
+        
+        // Show new page
+        const pageId = `page-${route}`;
+        let page = document.getElementById(pageId);
+        
+        if (!page) {
+            const render = this.routes[route];
+            if (!render) return console.error(`Route ${route} not found`);
+            
+            page = document.createElement('div');
+            page.id = pageId;
+            page.className = 'page';
+            page.innerHTML = render();
+            document.getElementById('app').appendChild(page);
+            
+            // Initialize page-specific JS
+            this.initPage(route, params);
+        } else {
+            page.style.display = 'block';
+            requestAnimationFrame(() => page.classList.add('active'));
+        }
+        
+        this.currentRoute = route;
+        Store.set({currentPage: route});
+        
+        // Update nav
+        document.querySelectorAll('.nav-item').forEach(n => {
+            n.classList.toggle('active', n.dataset.route === route);
+        });
+        
+        // Telegram expand
+        TelegramAPI.haptic('light');
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+    },
+    
+    initPage(route, params) {
+        switch(route) {
+            case 'garage':
+                this.loadGarageData();
+                break;
+            case 'orders':
+                this.loadOrdersData();
+                break;
+            case 'request':
+                this.initRequestForm();
+                break;
+            case 'profile':
+                this.loadProfileData();
+                break;
+        }
+    },
+    
+    async loadGarageData() {
+        const container = document.getElementById('cars-container');
+        if (!container) return;
+        
+        container.innerHTML = Components.Skeleton('card') + Components.Skeleton('card');
+        
+        try {
+            // Simulate API call
+            await new Promise(r => setTimeout(r, 800));
+            const cars = [
+                {id: '1', model: 'BMW 3 Series', year: 2020, mileage: 45000, plate: 'А 123 БВ 777', image: null},
+                {id: '2', model: 'Mercedes C-Class', year: 2019, mileage: 62000, plate: 'В 777 КМ 99', image: null}
+            ];
+            Store.set({cars});
+            
+            container.innerHTML = cars.map(c => Components.CarCard(c)).join('') + `
+                <div class="glass car-card" style="border:2px dashed var(--color-border);background:transparent;min-width:300px;cursor:pointer" onclick="Router.navigate('add-car')">
+                    <div style="font-size:48px;margin-bottom:16px;opacity:0.5;">+</div>
+                    <div class="font-semibold">Добавить авто</div>
+                </div>
+            `;
+        } catch(e) {
+            Components.Toast('Ошибка загрузки', 'error');
+        }
+    },
+    
+    async loadOrdersData() {
+        const container = document.getElementById('orders-list');
+        if (!container) return;
+        
+        container.innerHTML = Array(3).fill(Components.Skeleton('card')).join('');
+        
+        try {
+            await new Promise(r => setTimeout(r, 600));
+            const orders = [
+                {id: 'ord-1', partName: 'Тормозные колодки передние', carModel: 'BMW F30', status: 'active', price: 12400, deliveryDate: 'Сегодня, 18:00'},
+                {id: 'ord-2', partName: 'Масляный фильтр оригинал', carModel: 'Mercedes W205', status: 'delivered', price: 3200, deliveryDate: 'Вчера'}
+            ];
+            Store.set({orders});
+            
+            container.innerHTML = orders.map(o => Components.OrderCard(o)).join('');
+        } catch(e) {
+            Components.Toast('Ошибка загрузки заказов', 'error');
+        }
+    },
+    
+    initRequestForm() {
+        // Initialize photo upload
+        const slots = document.querySelectorAll('.photo-upload-slot');
+        slots.forEach((slot, index) => {
+            slot.onclick = () => this.handlePhotoUpload(slot, index);
+        });
+        
+        // Initialize chat
+        const chatContainer = document.getElementById('chat-messages');
+        if (chatContainer) {
+            // Load initial messages
+            const messages = [
+                {sender: 'manager', text: 'Здравствуйте! Готов помочь с подбором запчастей. Опишите, что вам нужно?', timestamp: new Date(Date.now() - 3600000)}
+            ];
+            Store.set({messages});
+            this.renderMessages(messages);
+        }
+        
+        // Form submission
+        const form = document.getElementById('request-form');
+        if (form) {
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                this.submitRequest();
+            };
+        }
+    },
+    
+    async handlePhotoUpload(slot, index) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!CONFIG.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                Components.Toast('Неверный формат изображения', 'error');
+                return;
+            }
+            
+            if (file.size > CONFIG.MAX_FILE_SIZE) {
+                Components.Toast('Файл слишком большой (макс 5MB)', 'error');
+                return;
+            }
+            
+            // Compress and preview
+            try {
+                const compressed = await Utils.compressImage(file, 800);
+                const url = URL.createObjectURL(compressed);
+                
+                slot.innerHTML = `
+                    <img src="${url}">
+                    <div class="remove-btn" onclick="event.stopPropagation(); Router.removePhoto(this.parentElement, ${index})">×</div>
+                `;
+                slot.classList.add('has-image');
+                
+                const photos = Store.get().photos;
+                photos[index] = compressed;
+                Store.set({photos});
+                
+                TelegramAPI.haptic('medium');
+            } catch(err) {
+                Components.Toast('Ошибка обработки фото', 'error');
+            }
+        };
+        
+        input.click();
+    },
+    
+    removePhoto(slot, index) {
+        slot.innerHTML = '+';
+        slot.classList.remove('has-image');
+        const photos = Store.get().photos;
+        delete photos[index];
+        Store.set({photos});
+    },
+    
+    async submitRequest() {
+        const formData = {
+            vin: document.getElementById('vin-input')?.value,
+            description: document.getElementById('desc-input')?.value,
+            urgent: document.getElementById('urgent-toggle')?.classList.contains('active'),
+            photos: Store.get().photos.filter(Boolean)
+        };
+        
+        if (!formData.vin && !formData.description) {
+            Components.Toast('Заполните VIN или описание', 'error');
+            return;
+        }
+        
+        TelegramAPI.showMainButton('Отправляем...', () => {});
+        
+        try {
+            // Simulate API
+            await new Promise(r => setTimeout(r, 1500));
+            
+            // Add message to chat
+            const newMessage = {
+                sender: 'user',
+                text: `Запрос на подбор: ${formData.description || 'VIN: ' + formData.vin}`,
+                timestamp: new Date()
+            };
+            
+            const messages = [...Store.get().messages, newMessage];
+            Store.set({messages});
+            this.renderMessages([newMessage]);
+            
+            // Clear form
+            document.getElementById('request-form')?.reset();
+            document.querySelectorAll('.photo-upload-slot').forEach(s => {
+                s.innerHTML = '+';
+                s.classList.remove('has-image');
+            });
+            Store.set({photos: []});
+            
+            Components.Toast('Запрос отправлен менеджеру', 'success');
+            TelegramAPI.hideMainButton();
+            
+        } catch(e) {
+            Components.Toast('Ошибка отправки', 'error');
+            TelegramAPI.hideMainButton();
+        }
+    },
+    
+    renderMessages(newMessages) {
+        const container = document.getElementById('chat-messages');
+        if (!container) return;
+        
+        const html = newMessages.map(m => Components.Message(m)).join('');
+        container.insertAdjacentHTML('beforeend', html);
+        container.scrollTop = container.scrollHeight;
+    },
+    
+    async loadProfileData() {
+        // Simulate user data
+        const user = {
+            name: 'Александр',
+            phone: '+7 (999) 123-45-67',
+            addresses: [
+                {id: 1, text: 'Москва, ул. Ленина 45, кв. 12'},
+                {id: 2, text: 'Москва, Пресненская наб. 12'}
+            ]
+        };
+        Store.set({user});
+        
+        // Render addresses
+        const container = document.getElementById('addresses-list');
+        if (container) {
+            container.innerHTML = user.addresses.map(addr => `
+                <div class="glass flex items-center gap-md" style="padding:16px;margin-bottom:12px;">
+                    <span style="font-size:20px;">📍</span>
+                    <div class="flex-1 text-sm">${addr.text}</div>
+                    <button onclick="Router.deleteAddress(${addr.id})" style="background:none;border:none;color:var(--color-text-secondary);font-size:20px;cursor:pointer;">×</button>
+                </div>
+            `).join('');
+        }
+    },
+    
+    deleteAddress(id) {
+        const user = Store.get().user;
+        user.addresses = user.addresses.filter(a => a.id !== id);
+        Store.set({user});
+        this.loadProfileData();
+        TelegramAPI.haptic('heavy');
+    }
+};
+
+/**
+ * Page Templates
+ */
+const Pages = {
+    Profile() {
+        return `
+            <div class="page active" id="page-profile">
+                <div class="text-center mb-xl">
+                    <div class="avatar" style="margin: 0 auto 16px;">
+                        👤
+                    </div>
+                    <h1 class="text-xl font-bold" id="user-name">Загрузка...</h1>
+                    <p class="text-secondary" id="user-phone">...</p>
+                </div>
+                
+                <div class="mb-md">
+                    <div class="flex justify-between items-center mb-md">
+                        <h2 class="font-semibold">Адреса доставки</h2>
+                        <button class="text-primary text-sm" onclick="Router.navigate('add-address')">+ Добавить</button>
+                    </div>
+                    <div id="addresses-list">
+                        ${Components.Skeleton('card')}
+                        ${Components.Skeleton('card')}
+                    </div>
+                </div>
+                
+                <div class="glass" style="padding:16px;">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="App.settings()">
+                        <span>Настройки</span>
+                        <span style="color:var(--color-text-secondary)">›</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    
+    Orders() {
+        return `
+            <div class="page active" id="page-orders">
+                <div style="display:flex;gap:24px;margin-bottom:24px;border-bottom:1px solid var(--color-border);">
+                    <div style="padding-bottom:12px;border-bottom:2px solid var(--color-primary);font-weight:600;">Активные</div>
+                    <div style="padding-bottom:12px;color:var(--color-text-secondary);cursor:pointer;" onclick="Components.Toast('История в разработке')">История</div>
+                </div>
+                <div id="orders-list">
+                    ${Array(3).fill(Components.Skeleton('card')).join('')}
+                </div>
+            </div>
+        `;
+    },
+    
+    Request() {
+        return `
+            <div class="page active" id="page-request">
+                <form id="request-form" onsubmit="return false;">
+                    <div class="input-group">
+                        <label class="text-sm text-secondary mb-sm block">VIN номер или гос. номер</label>
+                        <div class="relative">
+                            <input type="text" class="input" id="vin-input" placeholder="XTA210990R2740510">
+                            <span style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:20px;opacity:0.5;cursor:pointer;" onclick="Components.Toast('Сканер VIN в разработке')">📷</span>
+                        </div>
+                    </div>
+                    
+                    <div class="photo-grid">
+                        ${Array(6).fill(0).map((_,i) => `
+                            <div class="photo-upload-slot" data-index="${i}">+</div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="input-group">
+                        <textarea class="input" id="desc-input" placeholder="Опишите необходимую деталь, состояние, предпочтения по производителю..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-lg">
+                        <div>
+                            <div class="font-medium">Срочный подбор</div>
+                            <div class="text-xs text-secondary">+20% к стоимости, ответ за 15 мин</div>
+                        </div>
+                        <div class="toggle" id="urgent-toggle" onclick="this.classList.toggle('active'); TelegramAPI.haptic('light')"></div>
+                    </div>
+                </form>
+                
+                <div style="height:1px;background:var(--color-border);margin:24px 0;"></div>
+                
+                <div class="chat-container" id="chat-messages">
+                    <!-- Messages injected here -->
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" class="input" style="margin-bottom:0;flex:1;" placeholder="Сообщение менеджеру..." id="chat-input">
+                        <button class="btn btn-primary btn-icon" onclick="Router.submitRequest()">➜</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    
+    Garage() {
+        return `
+            <div class="page active" id="page-garage">
+                <h1 class="text-xl font-bold mb-md">Мой автопарк</h1>
+                <div class="car-carousel" id="cars-container">
+                    ${Array(2).fill(Components.Skeleton('card')).join('')}
+                </div>
+                
+                <div class="glass mt-lg" style="padding:20px;">
+                    <h3 class="font-semibold mb-sm">Добавить по VIN</h3>
+                    <div class="flex gap-sm">
+                        <input type="text" class="input" style="margin-bottom:0;" placeholder="VIN номер">
+                        <button class="btn btn-primary" onclick="TelegramAPI.haptic('medium'); Components.Toast('Авто добавлено', 'success')">Добавить</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+};
+
+/**
+ * App Initialization
+ */
+const App = {
+    init() {
+        // Initialize Telegram
+        TelegramAPI.init();
+        
+        // Setup navigation
+        this.setupNavigation();
+        
+        // Initial route
+        Router.navigate('garage');
+        
+        // Setup global error handling
+        window.onerror = (msg, url, line) => {
+            console.error(`Error: ${msg} at ${url}:${line}`);
+            Components.Toast('Произошла ошибка', 'error');
+            return true;
+        };
+        
+        // Prevent zoom on double tap
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - this.lastTouch < 300) {
+                e.preventDefault();
+            }
+            this.lastTouch = now;
+        }, {passive: false});
+        
+        // Online/Offline detection
+        window.addEventListener('online', () => Components.Toast('Соединение восстановлено', 'success'));
+        window.addEventListener('offline', () => Components.Toast('Нет подключения к сети', 'error'));
+    },
+    
+    setupNavigation() {
+        const nav = document.createElement('div');
+        nav.className = 'bottom-nav';
+        nav.innerHTML = `
+            <div class="nav-item active" data-route="garage" onclick="Router.navigate('garage')">
+                <span class="nav-icon">🚗</span>
+                <span class="nav-label">Авто</span>
+            </div>
+            <div class="nav-item" data-route="request" onclick="Router.navigate('request')">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Запрос</span>
+            </div>
+            <div class="nav-item" data-route="orders" onclick="Router.navigate('orders')">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Заказы</span>
+            </div>
+            <div class="nav-item" data-route="profile" onclick="Router.navigate('profile')">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Профиль</span>
+            </div>
+        `;
+        document.body.appendChild(nav);
+    },
+    
+    modal: {
+        open(title, content, footer = '') {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('modalFooter').innerHTML = footer;
+            document.getElementById('modalOverlay').classList.add('active');
+        },
+        close() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+    },
+    
+    settings() {
+        this.modal.open('Настройки', `
+            <div class="flex flex-col gap-md">
+                <label class="flex justify-between items-center">
+                    <span>Уведомления</span>
+                    <div class="toggle active"></div>
+                </label>
+                <label class="flex justify-between items-center">
+                    <span>Темная тема</span>
+                    <div class="toggle active"></div>
+                </label>
+            </div>
+        `, `
+            <button class="btn btn-primary w-full" onclick="App.modal.close()">Закрыть</button>
+        `);
+    },
+    
+    lastTouch: 0
+};
+
+// Start app when DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => App.init());
+} else {
+    App.init();
+}
+
+// Expose for debugging
+window.App = App;
+window.Router = Router;
+window.Store = Store;
+</script>
+
+</body>
+</html>
